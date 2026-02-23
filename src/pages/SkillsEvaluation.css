@@ -1,0 +1,262 @@
+/* src/pages/SkillsEvaluation.css */
+
+.test-page {
+  padding: 40px 20px;
+  min-height: calc(100vh - 70px);
+  background: var(--bg-light);
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.test-header h1 {
+  font-size: 2rem;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.test-header p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.progress-bar-container {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.test-container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.question-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.question-number {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.question-text {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.skill-name {
+  font-size: 1.8rem;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.question-category {
+  color: var(--text-light);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.option-button:hover {
+  border-color: var(--primary-color);
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateX(4px);
+}
+
+.option-button.selected {
+  border-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.option-value {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.option-label {
+  font-size: 1rem;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.navigation-buttons .btn {
+  flex: 1;
+}
+
+.navigation-buttons .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-sidebar {
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+}
+
+.test-sidebar h3 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: var(--text-dark);
+}
+
+.progress-stats {
+  margin-bottom: 32px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.stat-label {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.stat-value {
+  color: var(--text-dark);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.test-tips {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border-radius: 12px;
+}
+
+.test-tips h4 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: var(--text-dark);
+}
+
+.test-tips ul {
+  list-style: none;
+}
+
+.test-tips li {
+  padding: 8px 0;
+  color: var(--text-dark);
+  font-size: 14px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.test-tips li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.test-tips li strong {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+@media (max-width: 968px) {
+  .test-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .question-card {
+    padding: 24px;
+  }
+  
+  .test-sidebar {
+    position: static;
+  }
+  
+  .navigation-buttons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .option-button {
+    padding: 16px;
+  }
+  
+  .question-text {
+    font-size: 1.2rem;
+  }
+  
+  .skill-name {
+    font-size: 1.4rem;
+  }
+}

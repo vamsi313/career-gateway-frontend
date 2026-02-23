@@ -1,0 +1,246 @@
+.test-page {
+  padding: 40px 20px;
+  min-height: calc(100vh - 70px);
+  background: var(--paper);
+}
+
+.test-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.test-header h1 {
+  font-size: 2rem;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.test-header p {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.progress-bar-container {
+  max-width: 800px;
+  margin: 0 auto 40px;
+  height: 8px;
+  background: rgba(226, 217, 207, 0.9);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  transition: width 0.3s ease;
+  border-radius: 10px;
+}
+
+.test-container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.question-card {
+  background: var(--bg-white);
+  padding: 40px;
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(226, 217, 207, 0.7);
+}
+
+.question-number {
+  display: inline-block;
+  background: var(--primary-color);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.question-text {
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.question-category {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--bg-white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option-button:hover {
+  border-color: var(--primary-color);
+  background: rgba(15, 122, 108, 0.06);
+  transform: translateX(4px);
+}
+
+.option-button.selected {
+  border-color: var(--primary-color);
+  background: rgba(15, 122, 108, 0.12);
+  box-shadow: 0 6px 18px rgba(15, 122, 108, 0.18);
+}
+
+.option-value {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.option-label {
+  font-size: 1rem;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.navigation-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.navigation-buttons .btn {
+  flex: 1;
+}
+
+.navigation-buttons .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-sidebar {
+  background: var(--bg-white);
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  height: fit-content;
+  position: sticky;
+  top: 90px;
+  border: 1px solid rgba(226, 217, 207, 0.7);
+}
+
+.test-sidebar h3 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: var(--ink);
+}
+
+.progress-stats {
+  margin-bottom: 32px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--paper-strong);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.stat-value {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.test-tips {
+  padding: 20px;
+  background: rgba(196, 127, 42, 0.12);
+  border-radius: 16px;
+}
+
+.test-tips h4 {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.test-tips ul {
+  list-style: none;
+}
+
+.test-tips li {
+  padding: 8px 0;
+  color: var(--ink);
+  font-size: 14px;
+  padding-left: 24px;
+  position: relative;
+}
+
+.test-tips li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+@media (max-width: 968px) {
+  .test-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .question-card {
+    padding: 24px;
+  }
+  
+  .test-sidebar {
+    position: static;
+  }
+  
+  .navigation-buttons {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .option-button {
+    padding: 16px;
+  }
+  
+  .question-text {
+    font-size: 1.2rem;
+  }
+}

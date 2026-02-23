@@ -1,0 +1,115 @@
+/* src/components/CareerCard.css */
+
+.career-card {
+  background: var(--bg-white);
+  border-radius: 20px;
+  padding: 26px;
+  border: 1px solid rgba(226, 217, 207, 0.8);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.career-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-strong);
+}
+
+.career-icon {
+  font-size: 2.6rem;
+  margin-bottom: 12px;
+}
+
+.career-content h3 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+
+.career-category {
+  color: var(--primary-color);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.career-description {
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.career-info {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.info-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--paper-strong);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.badge-icon {
+  font-size: 16px;
+}
+
+.career-skills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.skill-tag {
+  padding: 6px 12px;
+  background: rgba(15, 122, 108, 0.1);
+  color: var(--primary-color);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.skill-tag.more {
+  background: var(--paper-strong);
+  color: var(--muted);
+}
+
+.view-details-btn {
+  padding: 10px 20px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.view-details-btn:hover {
+  transform: translateY(-2px);
+  background: var(--secondary-color);
+}
+
+@media (max-width: 768px) {
+  .career-card {
+    padding: 20px;
+  }
+  
+  .career-icon {
+    font-size: 2.5rem;
+  }
+}
