@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { personalityQuestions, agreementOptions } from '../data/questions';
 import { trackEvent } from '../utils/analytics';
+import { apiCall } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './PersonalityTest.css';
 
 function PersonalityTest() {
@@ -9,6 +11,7 @@ function PersonalityTest() {
   const [answers, setAnswers] = useState({});
   const [showProgress, setShowProgress] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     trackEvent('assessment_started', { assessmentType: 'personality' });
@@ -16,7 +19,7 @@ function PersonalityTest() {
 
   const progress = ((currentQuestion + 1) / personalityQuestions.length) * 100;
 
-  const handleAnswer = (value) => {
+  const handleAnswer = async (value) => {
     const newAnswers = {
       ...answers,
       [personalityQuestions[currentQuestion].id]: {
@@ -30,7 +33,7 @@ function PersonalityTest() {
     if (currentQuestion < personalityQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      // Save results and navigate
+      // Save results to localStorage and backend
       const existingResults = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
       existingResults.personality = {
         answers: newAnswers,
@@ -44,6 +47,23 @@ function PersonalityTest() {
         results: existingResults
       });
       localStorage.setItem('assessmentHistory', JSON.stringify(history));
+
+      // Save to backend
+      if (user?.id) {
+        try {
+          await apiCall('/assessments/save', {
+            method: 'POST',
+            body: {
+              userId: user.id,
+              assessmentType: 'personality',
+              answersJson: JSON.stringify(newAnswers)
+            }
+          });
+        } catch (err) {
+          console.error('Failed to save to backend:', err);
+        }
+      }
+
       trackEvent('assessment_completed', {
         assessmentType: 'personality',
         questionCount: personalityQuestions.length

@@ -49,12 +49,16 @@ function SignUp() {
       return;
     }
 
-    const result = signUp(formData);
-    
-    if (result.success) {
-      navigate('/assessments');
-    } else {
-      setError(result.error);
+    try {
+      const result = await signUp(formData);
+      
+      if (result.success) {
+        navigate('/assessments');
+      } else {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('Connection error. Please ensure the server is running.');
     }
     
     setLoading(false);

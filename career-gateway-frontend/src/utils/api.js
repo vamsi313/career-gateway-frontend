@@ -1,0 +1,33 @@
+const BASE_URL = 'http://localhost:8080/api';
+
+export const apiCall = async (endpoint, options = {}) => {
+  const url = `${BASE_URL}${endpoint}`;
+  
+  const defaultHeaders = {
+    'Content-Type': 'application/json',
+  };
+
+  const config = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers,
+    },
+  };
+
+  if (config.body && typeof config.body === 'object') {
+    config.body = JSON.stringify(config.body);
+  }
+
+  try {
+    const response = await fetch(url, config);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'API Request Failed');
+    }
+    return data;
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};

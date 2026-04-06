@@ -1,36 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { skillsQuestions, ratingOptions } from '../data/questions';
+import { interestQuestions, interestOptions } from '../data/questions';
 import { trackEvent } from '../utils/analytics';
+import { apiCall } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './PersonalityTest.css';
 
-function SkillsEvaluation() {
+function InterestProfiler() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
-    trackEvent('assessment_started', { assessmentType: 'skills' });
+    trackEvent('assessment_started', { assessmentType: 'interest' });
   }, []);
 
-  const progress = ((currentQuestion + 1) / skillsQuestions.length) * 100;
+  const progress = ((currentQuestion + 1) / interestQuestions.length) * 100;
 
-  const handleAnswer = (value) => {
+  const handleAnswer = async (value) => {
     const newAnswers = {
       ...answers,
-      [skillsQuestions[currentQuestion].id]: {
-        question: skillsQuestions[currentQuestion].question,
-        category: skillsQuestions[currentQuestion].category,
+      [interestQuestions[currentQuestion].id]: {
+        question: interestQuestions[currentQuestion].question,
+        category: interestQuestions[currentQuestion].category,
         value: value
       }
     };
     setAnswers(newAnswers);
 
-    if (currentQuestion < skillsQuestions.length - 1) {
+    if (currentQuestion < interestQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       const existingResults = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
-      existingResults.skills = {
+      existingResults.interest = {
         answers: newAnswers,
         completedAt: new Date().toISOString()
       };
@@ -42,9 +45,26 @@ function SkillsEvaluation() {
         results: existingResults
       });
       localStorage.setItem('assessmentHistory', JSON.stringify(history));
+
+      // Save to backend
+      if (user?.id) {
+        try {
+          await apiCall('/assessments/save', {
+            method: 'POST',
+            body: {
+              userId: user.id,
+              assessmentType: 'interest',
+              answersJson: JSON.stringify(newAnswers)
+            }
+          });
+        } catch (err) {
+          console.error('Failed to save to backend:', err);
+        }
+      }
+
       trackEvent('assessment_completed', {
-        assessmentType: 'skills',
-        questionCount: skillsQuestions.length
+        assessmentType: 'interest',
+        questionCount: interestQuestions.length
       });
       navigate('/results');
     }
@@ -56,14 +76,14 @@ function SkillsEvaluation() {
     }
   };
 
-  const question = skillsQuestions[currentQuestion];
+  const question = interestQuestions[currentQuestion];
 
   return (
     <div className="test-page">
       <div className="container">
         <div className="test-header">
-          <h1>Skills Evaluation</h1>
-          <p>Question {currentQuestion + 1} of {skillsQuestions.length}</p>
+          <h1>Interest Profiler</h1>
+          <p>Question {currentQuestion + 1} of {interestQuestions.length}</p>
         </div>
 
         <div className="progress-bar-container">
@@ -73,12 +93,12 @@ function SkillsEvaluation() {
         <div className="test-container">
           <div className="question-card">
             <div className="question-number">Question {currentQuestion + 1}</div>
-            <h2 className="question-text">Rate your proficiency in:</h2>
+            <h2 className="question-text">How interested are you in:</h2>
             <h3 className="skill-name">{question.question}</h3>
             <p className="question-category">Category: {question.category}</p>
 
             <div className="options-container">
-              {ratingOptions.map((option) => (
+              {interestOptions.map((option) => (
                 <button
                   key={option.value}
                   className={`option-button ${answers[question.id]?.value === option.value ? 'selected' : ''}`}
@@ -103,7 +123,7 @@ function SkillsEvaluation() {
                 onClick={() => handleAnswer(answers[question.id]?.value || 3)}
                 disabled={!answers[question.id]}
               >
-                {currentQuestion === skillsQuestions.length - 1 ? 'Finish' : 'Next'}
+                {currentQuestion === interestQuestions.length - 1 ? 'Finish' : 'Next'}
               </button>
             </div>
           </div>
@@ -113,22 +133,22 @@ function SkillsEvaluation() {
             <div className="progress-stats">
               <div className="stat-item">
                 <span className="stat-label">Completed</span>
-                <span className="stat-value">{currentQuestion + 1}/{skillsQuestions.length}</span>
+                <span className="stat-value">{currentQuestion + 1}/{interestQuestions.length}</span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Remaining</span>
-                <span className="stat-value">{skillsQuestions.length - currentQuestion - 1}</span>
+                <span className="stat-value">{interestQuestions.length - currentQuestion - 1}</span>
               </div>
             </div>
 
             <div className="test-tips">
-              <h4>💡 Rating Guide</h4>
+              <h4>❤️ Interest Levels</h4>
               <ul>
-                <li><strong>Beginner:</strong> Basic knowledge</li>
-                <li><strong>Novice:</strong> Some experience</li>
-                <li><strong>Intermediate:</strong> Comfortable using</li>
-                <li><strong>Advanced:</strong> Highly proficient</li>
-                <li><strong>Expert:</strong> Master level</li>
+                <li><strong>Not Interested:</strong> No appeal</li>
+                <li><strong>Slightly:</strong> Some curiosity</li>
+                <li><strong>Moderately:</strong> Decent interest</li>
+                <li><strong>Very:</strong> Strong interest</li>
+                <li><strong>Extremely:</strong> Passionate about it</li>
               </ul>
             </div>
           </div>
@@ -138,4 +158,4 @@ function SkillsEvaluation() {
   );
 }
 
-export default SkillsEvaluation;
+export default InterestProfiler;

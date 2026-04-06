@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { clearAnalytics, getUsageAnalyticsSummary } from '../utils/analytics';
+import { apiCall } from '../utils/api';
 import './AdminPanel.css';
 
 function AdminPanel() {
@@ -24,18 +25,39 @@ function AdminPanel() {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const usersData = JSON.parse(localStorage.getItem('users') || '[]');
+  const loadData = async () => {
+    // Load analytics from localStorage (client-side analytics)
     const analyticsSummary = getUsageAnalyticsSummary();
-    
-    setUsers(usersData);
-    setStats({
-      totalUsers: usersData.length,
-      completedAssessments: analyticsSummary.totalAssessmentCompletions,
-      activeToday: analyticsSummary.activeUsersToday,
-      signInsToday: analyticsSummary.signInsToday,
-      pageViewsToday: analyticsSummary.pageViewsToday
-    });
+
+    // Load users and stats from backend
+    try {
+      const usersResponse = await apiCall('/admin/users');
+      if (usersResponse.success) {
+        setUsers(usersResponse.data || []);
+      }
+
+      const statsResponse = await apiCall('/admin/stats');
+      if (statsResponse.success) {
+        setStats({
+          totalUsers: statsResponse.data.totalUsers || 0,
+          completedAssessments: statsResponse.data.totalAssessments || 0,
+          activeToday: analyticsSummary.activeUsersToday,
+          signInsToday: analyticsSummary.signInsToday,
+          pageViewsToday: analyticsSummary.pageViewsToday
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch admin data from backend:', err);
+      // Fallback to analytics-only stats
+      setStats({
+        totalUsers: 0,
+        completedAssessments: analyticsSummary.totalAssessmentCompletions,
+        activeToday: analyticsSummary.activeUsersToday,
+        signInsToday: analyticsSummary.signInsToday,
+        pageViewsToday: analyticsSummary.pageViewsToday
+      });
+    }
+
     setAnalytics({
       totalEvents: analyticsSummary.totalEvents,
       assessmentsCompletedToday: analyticsSummary.assessmentsCompletedToday,
@@ -48,7 +70,6 @@ function AdminPanel() {
   const handleDeleteUser = (email) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       const updatedUsers = users.filter(u => u.email !== email);
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
       setUsers(updatedUsers);
       loadData();
     }

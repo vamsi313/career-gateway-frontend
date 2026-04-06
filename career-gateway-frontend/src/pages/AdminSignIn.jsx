@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './SignIn.css';
 
+const MAX_ADMIN_ATTEMPTS = 3;
+const LOCKOUT_DURATION_MS = 5 * 60 * 1000;
+
 const generateCaptcha = () => {
   const firstNumber = Math.floor(Math.random() * 10) + 1;
   const secondNumber = Math.floor(Math.random() * 10) + 1;
@@ -12,30 +15,63 @@ const generateCaptcha = () => {
   };
 };
 
-function SignIn() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+const getLockoutData = () => {
+  const failedAttempts = Number(localStorage.getItem('adminFailedAttempts') || 0);
+  const lockoutUntil = Number(localStorage.getItem('adminLockoutUntil') || 0);
+  return { failedAttempts, lockoutUntil };
+};
+
+function AdminSignIn() {
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [captcha, setCaptcha] = useState(() => generateCaptcha());
   const [captchaInput, setCaptchaInput] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signInAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const lockoutInfo = getLockoutData();
+
+  const remainingLockout = Math.max(0, lockoutInfo.lockoutUntil - Date.now());
+
+  const handleChange = (event) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [event.target.name]: event.target.value
     });
     setError('');
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFailedAttempt = () => {
+    const nextAttempts = lockoutInfo.failedAttempts + 1;
+    localStorage.setItem('adminFailedAttempts', String(nextAttempts));
+
+    if (nextAttempts >= MAX_ADMIN_ATTEMPTS) {
+      const lockoutUntil = Date.now() + LOCKOUT_DURATION_MS;
+      localStorage.setItem('adminLockoutUntil', String(lockoutUntil));
+      setError('Too many failed attempts. Try again in 5 minutes.');
+      return;
+    }
+
+    setError(`Invalid credentials. Attempts left: ${MAX_ADMIN_ATTEMPTS - nextAttempts}`);
+  };
+
+  const handleSuccessfulLogin = () => {
+    localStorage.removeItem('adminFailedAttempts');
+    localStorage.removeItem('adminLockoutUntil');
+    navigate('/admin');
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError('');
     setLoading(true);
+
+    if (remainingLockout > 0) {
+      setError(`Admin login is temporarily locked. Try again in ${Math.ceil(remainingLockout / 60000)} minute(s).`);
+      setLoading(false);
+      return;
+    }
 
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
@@ -51,14 +87,20 @@ function SignIn() {
       return;
     }
 
-    const result = signIn(formData.email, formData.password);
-    
-    if (result.success) {
-      navigate('/assessments');
-    } else {
-      setError(result.error);
+    try {
+      const result = await signInAdmin(formData.email, formData.password);
+
+      if (result.success) {
+        handleSuccessfulLogin();
+      } else {
+        handleFailedAttempt();
+        setCaptcha(generateCaptcha());
+        setCaptchaInput('');
+      }
+    } catch (err) {
+      setError('Connection error. Please ensure the server is running.');
     }
-    
+
     setLoading(false);
   };
 
@@ -67,34 +109,34 @@ function SignIn() {
       <div className="container">
         <div className="auth-container">
           <div className="auth-card">
-            <h1 className="auth-title">Welcome Back</h1>
-            <p className="auth-subtitle">Sign in to continue your career journey</p>
+            <h1 className="auth-title">Admin Sign In</h1>
+            <p className="auth-subtitle">Secure access to admin controls and analytics</p>
 
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="form-group">
-                <label htmlFor="email">Email Address</label>
+                <label htmlFor="email">Admin Email</label>
                 <input
                   type="email"
                   id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder="your.email@example.com"
+                  placeholder="admin@email.com"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="password">Password</label>
+                <label htmlFor="password">Admin Password</label>
                 <input
                   type="password"
                   id="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Enter your password"
+                  placeholder="Enter admin password"
                   required
                 />
               </div>
@@ -120,8 +162,8 @@ function SignIn() {
                   id="captcha"
                   name="captcha"
                   value={captchaInput}
-                  onChange={(e) => {
-                    setCaptchaInput(e.target.value);
+                  onChange={(event) => {
+                    setCaptchaInput(event.target.value);
                     setError('');
                   }}
                   placeholder="Enter the answer"
@@ -129,23 +171,19 @@ function SignIn() {
                 />
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="btn btn-primary btn-full"
                 disabled={loading}
               >
-                {loading ? 'Signing In...' : 'Sign In'}
+                {loading ? 'Signing In...' : 'Access Admin Panel'}
               </button>
             </form>
 
             <div className="auth-footer">
-              <p>Don't have an account? <Link to="/signup" className="auth-link">Sign Up</Link></p>
-              <p>Admin access? <Link to="/admin-signin" className="auth-link">Use Admin Sign In</Link></p>
-            </div>
-
-            <div className="demo-credentials">
-              <p className="demo-title">Demo Credentials:</p>
-              <p>Create a new student account to access assessments</p>
+              <p>
+                Student account? <Link to="/signin" className="auth-link">Go to Student Sign In</Link>
+              </p>
             </div>
           </div>
         </div>
@@ -154,4 +192,4 @@ function SignIn() {
   );
 }
 
-export default SignIn;
+export default AdminSignIn;
