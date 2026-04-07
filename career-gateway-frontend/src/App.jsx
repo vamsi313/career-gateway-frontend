@@ -6,7 +6,6 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
-import AdminSignIn from './pages/AdminSignIn';
 import Assessments from './pages/Assessments';
 import CareerExplorer from './pages/CareerExplorer';
 import Resources from './pages/Resources';
@@ -50,7 +49,6 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/signin" element={<SignIn />} />
-              <Route path="/admin-signin" element={<AdminSignIn />} />
               <Route path="/signup" element={<SignUp />} />
               <Route 
                 path="/assessments" 

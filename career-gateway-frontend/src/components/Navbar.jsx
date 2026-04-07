@@ -63,7 +63,6 @@ function Navbar() {
               ) : (
                 <>
                   <Link to="/signin" className="btn btn-signin" onClick={closeMenu}>Sign In</Link>
-                  <Link to="/admin-signin" className="btn btn-admin" onClick={closeMenu}>Admin Sign In</Link>
                   <Link to="/signup" className="btn btn-signup" onClick={closeMenu}>Sign Up</Link>
                 </>
               )}

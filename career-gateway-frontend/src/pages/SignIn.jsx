@@ -185,7 +185,6 @@ function SignIn() {
 
             <div className="auth-footer">
               <p>Don't have an account? <Link to="/signup" className="auth-link">Sign Up</Link></p>
-              <p>Admin access? <Link to="/admin-signin" className="auth-link">Use Admin Sign In</Link></p>
             </div>
 
             <div className="demo-credentials">
