@@ -15,6 +15,7 @@ import PersonalityTest from './pages/PersonalityTest';
 import SkillsEvaluation from './pages/SkillsEvaluation';
 import InterestProfiler from './pages/InterestProfiler';
 import Results from './pages/Results';
+import Settings from './pages/Settings';
 import { trackEvent } from './utils/analytics';
 import './App.css';
 
@@ -88,6 +89,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <Results />
+                  </PrivateRoute>
+                } 
+              />
+              <Route 
+                path="/settings" 
+                element={
+                  <PrivateRoute>
+                    <Settings />
                   </PrivateRoute>
                 } 
               />

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { 
+  Target, BarChart3, Briefcase, BookOpen, 
+  Building2, MonitorSmartphone, FlaskConical, Palette 
+} from 'lucide-react';
 import { careers } from '../data/careers';
 import './Home.css';
 
@@ -8,10 +12,10 @@ function Home() {
   const { user } = useAuth();
 
   const categories = [
-    { name: 'Business', icon: '💼', color: '#ec4899' },
-    { name: 'Technology', icon: '💻', color: '#6366f1' },
-    { name: 'Research', icon: '🔬', color: '#8b5cf6' },
-    { name: 'Creative', icon: '🎨', color: '#f59e0b' }
+    { name: 'Business', icon: <Building2 />, color: '#ec4899' },
+    { name: 'Technology', icon: <MonitorSmartphone />, color: '#6366f1' },
+    { name: 'Research', icon: <FlaskConical />, color: '#8b5cf6' },
+    { name: 'Creative', icon: <Palette />, color: '#f59e0b' }
   ];
 
   return (
@@ -143,22 +147,22 @@ function Home() {
           </div>
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">🎯</div>
+              <div className="feature-icon"><Target size={32} color="var(--primary-color)"/></div>
               <h3>Personalized Assessment</h3>
               <p>Tests aligned to your degree, goals, and readiness level.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📊</div>
+              <div className="feature-icon"><BarChart3 size={32} color="var(--secondary-color)"/></div>
               <h3>Insightful Analytics</h3>
               <p>Clarity on strengths, gaps, and next steps with rich reports.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">💼</div>
+              <div className="feature-icon"><Briefcase size={32} color="var(--accent-color)"/></div>
               <h3>Career Intelligence</h3>
               <p>Role fit, salary ranges, and growth prospects in one view.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📚</div>
+              <div className="feature-icon"><BookOpen size={32} color="var(--text-light)"/></div>
               <h3>Learning Resources</h3>
               <p>Curated content to close gaps fast and build confidence.</p>
             </div>

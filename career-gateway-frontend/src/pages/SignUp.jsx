@@ -12,42 +12,83 @@ function SignUp() {
     education: '',
     phone: ''
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
 
+  const validateField = (name, value, currentFormData = formData) => {
+    let errorMsg = '';
+    
+    switch (name) {
+      case 'name':
+        if (!value) errorMsg = 'Name is required';
+        break;
+      case 'email':
+        if (!value) errorMsg = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(value)) errorMsg = 'Email format is invalid';
+        break;
+      case 'education':
+        if (!value) errorMsg = 'Education is required';
+        break;
+      case 'password':
+        if (!value) errorMsg = 'Password is required';
+        else if (value.length < 6) errorMsg = 'Password must be at least 6 characters';
+        break;
+      case 'confirmPassword':
+        if (!value) errorMsg = 'Please confirm password';
+        else if (value !== currentFormData.password) errorMsg = 'Passwords do not match';
+        break;
+      default:
+        break;
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: errorMsg
+    }));
+    return errorMsg === '';
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+    const { name, value } = e.target;
+    
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      if (errors[name] || name === 'password' || name === 'confirmPassword') {
+        // Automatically validate matching password fields if one changes
+        if (name === 'password' && newData.confirmPassword) {
+           validateField('confirmPassword', newData.confirmPassword, newData);
+        }
+        validateField(name, value, newData);
+      }
+      
+      return newData;
     });
-    setError('');
+    
+    setGlobalError('');
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    validateField(name, value, formData);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setGlobalError('');
+    
+    const isValid = ['name', 'email', 'education', 'password', 'confirmPassword'].every(
+      field => validateField(field, formData[field], formData)
+    );
+
+    if (!isValid) {
+      return;
+    }
+
     setLoading(true);
-
-    // Validation
-    if (!formData.name || !formData.email || !formData.password || !formData.education) {
-      setError('Please fill in all required fields');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
-      return;
-    }
 
     try {
       const result = await signUp(formData);
@@ -55,10 +96,10 @@ function SignUp() {
       if (result.success) {
         navigate('/assessments');
       } else {
-        setError(result.error);
+        setGlobalError(result.error);
       }
     } catch (err) {
-      setError('Connection error. Please ensure the server is running.');
+      setGlobalError('Connection error. Please ensure the server is running.');
     }
     
     setLoading(false);
@@ -72,9 +113,9 @@ function SignUp() {
             <h1 className="auth-title">Create Account</h1>
             <p className="auth-subtitle">Start your career discovery journey today</p>
 
-            {error && <div className="error-message">{error}</div>}
+            {globalError && <div className="error-message">{globalError}</div>}
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form" noValidate>
               <div className="form-group">
                 <label htmlFor="name">Full Name *</label>
                 <input
@@ -83,9 +124,11 @@ function SignUp() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="John Doe"
-                  required
+                  className={errors.name ? 'input-error' : ''}
                 />
+                {errors.name && <span className="inline-error">{errors.name}</span>}
               </div>
 
               <div className="form-group">
@@ -96,9 +139,11 @@ function SignUp() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="your.email@example.com"
-                  required
+                  className={errors.email ? 'input-error' : ''}
                 />
+                {errors.email && <span className="inline-error">{errors.email}</span>}
               </div>
 
               <div className="form-group">
@@ -120,7 +165,8 @@ function SignUp() {
                   name="education"
                   value={formData.education}
                   onChange={handleChange}
-                  required
+                  onBlur={handleBlur}
+                  className={errors.education ? 'input-error' : ''}
                 >
                   <option value="">Select your education</option>
                   <option value="B.Tech">B.Tech</option>
@@ -131,6 +177,7 @@ function SignUp() {
                   <option value="M.Sc">M.Sc</option>
                   <option value="Other">Other</option>
                 </select>
+                {errors.education && <span className="inline-error">{errors.education}</span>}
               </div>
 
               <div className="form-group">
@@ -141,9 +188,11 @@ function SignUp() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="At least 6 characters"
-                  required
+                  className={errors.password ? 'input-error' : ''}
                 />
+                {errors.password && <span className="inline-error">{errors.password}</span>}
               </div>
 
               <div className="form-group">
@@ -154,9 +203,11 @@ function SignUp() {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Re-enter password"
-                  required
+                  className={errors.confirmPassword ? 'input-error' : ''}
                 />
+                {errors.confirmPassword && <span className="inline-error">{errors.confirmPassword}</span>}
               </div>
 
               <button 

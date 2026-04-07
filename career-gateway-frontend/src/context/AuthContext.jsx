@@ -35,6 +35,9 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
         trackEvent('sign_in_success', { userEmail: email, role: response.data.role || 'student' });
         return { success: true };
       } else {
@@ -57,6 +60,9 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
         trackEvent('admin_sign_in_success', { userEmail: email, role: 'admin' });
         return { success: true };
       } else {
@@ -83,6 +89,9 @@ export const AuthProvider = ({ children }) => {
       if (response.success && response.data) {
         setUser(response.data);
         localStorage.setItem('user', JSON.stringify(response.data));
+        if (response.data.token) {
+          localStorage.setItem('token', response.data.token);
+        }
         trackEvent('sign_up_success', { userEmail: userData.email, role: 'student' });
         return { success: true };
       } else {
@@ -97,6 +106,7 @@ export const AuthProvider = ({ children }) => {
     trackEvent('sign_out', { userEmail: user?.email || 'guest', role: user?.role || 'unknown' });
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   const value = {

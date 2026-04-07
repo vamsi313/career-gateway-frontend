@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import mammoth from 'mammoth/mammoth.browser';
+import { 
+  CheckCircle, Target, Calendar, 
+  Brain, Zap, Heart, Award, 
+  FileText, Upload, ChevronRight,
+  AlertTriangle, BookOpen
+} from 'lucide-react';
 import { careers } from '../data/careers';
 import { calculateCategoryScores, getRecommendedCareers } from '../utils/recommendations';
 import { trackEvent } from '../utils/analytics';
+import { useAuth } from '../context/AuthContext';
+import { apiCall } from '../utils/api';
 import './Results.css';
 
 function Results() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [results, setResults] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [activeTab, setActiveTab] = useState('personality');
@@ -23,21 +33,74 @@ function Results() {
   const [resumeError, setResumeError] = useState('');
 
   useEffect(() => {
-    const savedResults = localStorage.getItem('assessmentResults');
-    const history = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
-    setHistoryEntries(history);
+    async function fetchResults() {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
 
-    if (history.length > 0) {
-      const latestEntry = history[history.length - 1];
-      applyResults(latestEntry.results, latestEntry.completedAt, latestEntry.id);
-      return;
+      try {
+        const response = await apiCall(`/assessments/history/${user.id}`);
+        const assessments = response.data || [];
+        
+        if (assessments.length === 0) {
+          setLoading(false);
+          return;
+        }
+
+        // Parse and group the latest assessment of each type
+        const groupedResults = {};
+        // We iterate backwards to ensure the latest assessment overrides older ones if multiple exist
+        [...assessments].reverse().forEach(item => {
+          let parsedAnswers = {};
+          try {
+            parsedAnswers = JSON.parse(item.answersJson);
+          } catch (e) {
+            parsedAnswers = {};
+          }
+          groupedResults[item.assessmentType] = {
+            answers: parsedAnswers,
+            completedAt: item.completedAt
+          };
+        });
+
+        // Compute history sessions grouped by day
+        const sessionsMap = {};
+        assessments.forEach(item => {
+          const dateKey = new Date(item.completedAt).toLocaleDateString();
+          if (!sessionsMap[dateKey]) {
+            sessionsMap[dateKey] = {
+              id: dateKey,
+              completedAt: item.completedAt,
+              results: {}
+            };
+          }
+          let parsedAnswers = {};
+          try {
+             parsedAnswers = JSON.parse(item.answersJson);
+          } catch(e){}
+          
+          sessionsMap[dateKey].results[item.assessmentType] = {
+            answers: parsedAnswers,
+            completedAt: item.completedAt
+          };
+        });
+
+        const sortedHistory = Object.values(sessionsMap).sort((a,b) => 
+           new Date(b.completedAt) - new Date(a.completedAt)
+        );
+
+        setHistoryEntries(sortedHistory);
+        applyResults(groupedResults, getLatestCompletedAt(groupedResults), 'latest');
+      } catch (error) {
+        console.error("Failed to fetch assessment history", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    if (savedResults) {
-      const parsedResults = JSON.parse(savedResults);
-      applyResults(parsedResults, getLatestCompletedAt(parsedResults), 'latest');
-    }
-  }, []);
+    fetchResults();
+  }, [user]);
 
   const getLatestCompletedAt = (assessmentResults) => {
     if (!assessmentResults) {
@@ -289,6 +352,14 @@ function Results() {
     trackEvent('roadmap_pdf_downloaded', { careerTarget: topCareer.title });
   };
 
+  if (loading) {
+    return (
+      <div className="results-page flex-center" style={{ minHeight: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <p>Loading your results...</p>
+      </div>
+    );
+  }
+
   if (!results) {
     return (
       <div className="results-page">
@@ -315,7 +386,7 @@ function Results() {
       <div className="container">
         <div className="results-summary">
           <div className="summary-card">
-            <div className="summary-icon">✅</div>
+            <div className="summary-icon"><CheckCircle size={32} color="var(--primary-color)"/></div>
             <div className="summary-content">
               <h3>Assessments Completed</h3>
               <p className="summary-value">
@@ -325,7 +396,7 @@ function Results() {
           </div>
 
           <div className="summary-card">
-            <div className="summary-icon">🎯</div>
+            <div className="summary-icon"><Target size={32} color="var(--secondary-color)"/></div>
             <div className="summary-content">
               <h3>Top Career Fit</h3>
               <p className="summary-value">{recommendations[0]?.fitScore || 0}%</p>
@@ -333,7 +404,7 @@ function Results() {
           </div>
 
           <div className="summary-card">
-            <div className="summary-icon">📊</div>
+            <div className="summary-icon"><Calendar size={32} color="var(--text-light)"/></div>
             <div className="summary-content">
               <h3>Completion Date</h3>
               <p className="summary-value">
@@ -388,7 +459,7 @@ function Results() {
               className={`tab-button ${activeTab === 'personality' ? 'active' : ''}`}
               onClick={() => setActiveTab('personality')}
             >
-              🧠 Personality
+              <Brain size={18} /> Personality
             </button>
           )}
           {results.skills && (
@@ -396,7 +467,7 @@ function Results() {
               className={`tab-button ${activeTab === 'skills' ? 'active' : ''}`}
               onClick={() => setActiveTab('skills')}
             >
-              ⚡ Skills
+              <Zap size={18} /> Skills
             </button>
           )}
           {results.interest && (
@@ -404,7 +475,7 @@ function Results() {
               className={`tab-button ${activeTab === 'interest' ? 'active' : ''}`}
               onClick={() => setActiveTab('interest')}
             >
-              ❤️ Interests
+              <Heart size={18} /> Interests
             </button>
           )}
         </div>

@@ -1,0 +1,74 @@
+.settings-page {
+  padding-bottom: 4rem;
+}
+
+.settings-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.danger-zone {
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+}
+
+.danger-zone-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.danger-zone-header h2 {
+  color: #dc2626;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.danger-zone p {
+  color: #7f1d1d;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.confirm-delete-box {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.confirm-delete-box p {
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 1rem;
+}

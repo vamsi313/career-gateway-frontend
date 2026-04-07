@@ -17,39 +17,76 @@ function SignIn() {
     email: '',
     password: ''
   });
+  const [errors, setErrors] = useState({});
   const [captcha, setCaptcha] = useState(() => generateCaptcha());
   const [captchaInput, setCaptchaInput] = useState('');
-  const [error, setError] = useState('');
+  const [globalError, setGlobalError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
+  const validateField = (name, value) => {
+    let errorMsg = '';
+    if (name === 'email') {
+      if (!value) {
+        errorMsg = 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(value)) {
+        errorMsg = 'Email format is invalid';
+      }
+    }
+    if (name === 'password') {
+      if (!value) errorMsg = 'Password is required';
+    }
+    if (name === 'captcha') {
+      if (!value) {
+        errorMsg = 'Captcha is required';
+      } else if (Number(value) !== captcha.answer) {
+        errorMsg = 'Incorrect CAPTCHA';
+      }
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [name]: errorMsg
+    }));
+    return errorMsg === '';
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError('');
+    const { name, value } = e.target;
+    if (name === 'captcha') {
+      setCaptchaInput(value);
+      validateField('captcha', value);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+      if (errors[name]) {
+        validateField(name, value);
+      }
+    }
+    setGlobalError('');
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    validateField(name, value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setGlobalError('');
+    
+    const isEmailValid = validateField('email', formData.email);
+    const isPasswordValid = validateField('password', formData.password);
+    const isCaptchaValid = validateField('captcha', captchaInput);
+
+    if (!isEmailValid || !isPasswordValid || !isCaptchaValid) {
+      return;
+    }
+
     setLoading(true);
-
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      setLoading(false);
-      return;
-    }
-
-    if (Number(captchaInput) !== captcha.answer) {
-      setError('CAPTCHA verification failed. Please try again.');
-      setCaptcha(generateCaptcha());
-      setCaptchaInput('');
-      setLoading(false);
-      return;
-    }
 
     try {
       const result = await signIn(formData.email, formData.password);
@@ -57,10 +94,10 @@ function SignIn() {
       if (result.success) {
         navigate('/assessments');
       } else {
-        setError(result.error);
+        setGlobalError(result.error);
       }
     } catch (err) {
-      setError('Connection error. Please ensure the server is running.');
+      setGlobalError('Connection error. Please ensure the server is running.');
     }
     
     setLoading(false);
@@ -74,9 +111,9 @@ function SignIn() {
             <h1 className="auth-title">Welcome Back</h1>
             <p className="auth-subtitle">Sign in to continue your career journey</p>
 
-            {error && <div className="error-message">{error}</div>}
+            {globalError && <div className="error-message">{globalError}</div>}
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSubmit} className="auth-form" noValidate>
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
                 <input
@@ -85,9 +122,11 @@ function SignIn() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="your.email@example.com"
-                  required
+                  className={errors.email ? 'input-error' : ''}
                 />
+                {errors.email && <span className="inline-error">{errors.email}</span>}
               </div>
 
               <div className="form-group">
@@ -98,9 +137,11 @@ function SignIn() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Enter your password"
-                  required
+                  className={errors.password ? 'input-error' : ''}
                 />
+                {errors.password && <span className="inline-error">{errors.password}</span>}
               </div>
 
               <div className="form-group">
@@ -113,7 +154,8 @@ function SignIn() {
                     onClick={() => {
                       setCaptcha(generateCaptcha());
                       setCaptchaInput('');
-                      setError('');
+                      setErrors(prev => ({...prev, captcha: ''}));
+                      setGlobalError('');
                     }}
                   >
                     ↻ Refresh
@@ -124,13 +166,12 @@ function SignIn() {
                   id="captcha"
                   name="captcha"
                   value={captchaInput}
-                  onChange={(e) => {
-                    setCaptchaInput(e.target.value);
-                    setError('');
-                  }}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Enter the answer"
-                  required
+                  className={errors.captcha ? 'input-error' : ''}
                 />
+                {errors.captcha && <span className="inline-error">{errors.captcha}</span>}
               </div>
 
               <button 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Navbar.css';
 
@@ -54,6 +55,9 @@ function Navbar() {
               {user ? (
                 <>
                   <span className="user-name">Hi, {user.name}</span>
+                  <Link to="/settings" className="btn btn-icon" title="Settings" onClick={closeMenu}>
+                    <Settings size={20} />
+                  </Link>
                   <button className="btn btn-signout" onClick={handleSignOut}>Sign Out</button>
                 </>
               ) : (

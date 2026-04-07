@@ -1,10 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Brain, Zap, Compass, FileText, Clock, Lightbulb } from 'lucide-react';
 import { assessments } from '../data/assessments';
 import { trackEvent } from '../utils/analytics';
 import './Assessments.css';
 
 function Assessments() {
+  const renderIcon = (iconId, color) => {
+    switch(iconId) {
+       case 'brain': return <Brain size={40} color={color} />;
+       case 'zap': return <Zap size={40} color={color} />;
+       case 'compass': return <Compass size={40} color={color} />;
+       default: return <Brain size={40} color={color} />;
+    }
+  };
+
   return (
     <div className="assessments-page">
       <div className="page-header">
@@ -16,19 +26,19 @@ function Assessments() {
         <div className="assessments-grid">
           {assessments.map((assessment) => (
             <div key={assessment.id} className="assessment-card">
-              <div className="assessment-icon" style={{ background: assessment.color }}>
-                {assessment.icon}
+              <div className="assessment-icon" style={{ background: 'var(--bg-light)' }}>
+                {renderIcon(assessment.icon, assessment.color)}
               </div>
               <h2>{assessment.title}</h2>
               <p className="assessment-description">{assessment.description}</p>
               
               <div className="assessment-info">
                 <div className="info-item">
-                  <span className="info-icon">📝</span>
+                  <span className="info-icon"><FileText size={16}/></span>
                   <span>{assessment.questions} Questions</span>
                 </div>
                 <div className="info-item">
-                  <span className="info-icon">⏱️</span>
+                  <span className="info-icon"><Clock size={16}/></span>
                   <span>{assessment.duration}</span>
                 </div>
               </div>
@@ -66,7 +76,7 @@ function Assessments() {
         </div>
 
         <div className="assessment-note">
-          <h3>💡 Assessment Tips</h3>
+          <h3><Lightbulb size={24} style={{ marginRight: '8px', verticalAlign: 'middle', color: 'var(--primary-color)' }}/> Assessment Tips</h3>
           <ul>
             <li>Find a quiet place where you won't be interrupted</li>
             <li>Answer honestly - there are no right or wrong answers</li>

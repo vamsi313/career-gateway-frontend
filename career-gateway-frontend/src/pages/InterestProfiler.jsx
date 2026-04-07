@@ -32,19 +32,7 @@ function InterestProfiler() {
     if (currentQuestion < interestQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      const existingResults = JSON.parse(localStorage.getItem('assessmentResults') || '{}');
-      existingResults.interest = {
-        answers: newAnswers,
-        completedAt: new Date().toISOString()
-      };
-      localStorage.setItem('assessmentResults', JSON.stringify(existingResults));
-      const history = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
-      history.push({
-        id: Date.now(),
-        completedAt: new Date().toISOString(),
-        results: existingResults
-      });
-      localStorage.setItem('assessmentHistory', JSON.stringify(history));
+      // Save to backend only
 
       // Save to backend
       if (user?.id) {
