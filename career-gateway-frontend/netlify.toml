@@ -4,7 +4,7 @@
   publish = "dist"
 
 [build.environment]
-  VITE_API_URL = "https://career-gateway-backend.onrender.com/api"
+  VITE_API_URL = "https://career-gateway-backend1.onrender.com/api"
 
 [[redirects]]
   from = "/*"
